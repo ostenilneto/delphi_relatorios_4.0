@@ -1,0 +1,60 @@
+unit VendedorUnit;
+
+interface
+
+uses
+  System.Generics.Collections, System.SysUtils;
+
+type
+  TVenda = class
+  public
+    Valor: Double;
+    Data: TDateTime;
+    constructor Create(AValor: Double; AData: TDateTime);
+  end;
+
+constructor TVenda.Create(AValor: Double; AData: TDateTime);
+begin
+  Valor := AValor;
+  Data := AData;
+end;
+
+type
+  TVendedor = class
+  private
+    FNome: string;
+    FTotalVendas: Double;
+    FVendas: TList<TVenda>;
+  public
+    constructor Create(const ANome: string);
+    destructor Destroy; override;
+    procedure AdicionarVenda(AValor: Double; AData: TDateTime);
+    property Nome: string read FNome;
+    property TotalVendas: Double read FTotalVendas;
+  end;
+
+constructor TVendedor.Create(const ANome: string);
+begin
+  FNome := ANome;
+  FTotalVendas := 0;
+  FVendas := TList<TVenda>.Create;
+end;
+
+destructor TVendedor.Destroy;
+begin
+  while FVendas.Count > 0 do
+  begin
+    FVendas.Last.Free; // Libera cada venda
+    FVendas.Delete(FVendas.Count - 1);
+  end;
+  FVendas.Free; // Libera a lista de vendas
+  inherited;
+end;
+
+procedure TVendedor.AdicionarVenda(AValor: Double; AData: TDateTime);
+begin
+  FVendas.Add(TVenda.Create(AValor, AData)); // Adiciona uma nova venda
+  FTotalVendas := FTotalVendas + AValor; // Atualiza o total de vendas
+end;
+
+end.

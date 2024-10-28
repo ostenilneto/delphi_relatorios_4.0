@@ -1,0 +1,59 @@
+unit TVendedor;
+
+interface
+
+uses
+  Classes, SysUtils;
+
+type
+  TVendedor = class(TObject)
+  private
+    FNome: string;
+    FID: Integer;
+    FVendas: Currency;
+    FMeta: Currency;
+    FOnVendasAtualizadas: TNotifyEvent;
+    procedure SetVendas(Value: Currency);
+  public
+    // Construtor
+    constructor Create(ANome: string; AID: Integer; AMeta: Currency);
+    // Propriedades
+    property Nome: string read FNome write FNome;
+    property ID: Integer read FID write FID;
+    property Vendas: Currency read FVendas write SetVendas;
+    property Meta: Currency read FMeta write FMeta;
+    // Evento para notificação de mudanças
+    property OnVendasAtualizadas: TNotifyEvent read FOnVendasAtualizadas write FOnVendasAtualizadas;
+    // Métodos
+    procedure AtualizarVendas(Valor: Currency); // Método para atualizar vendas
+  end;
+
+implementation
+
+{ TVendedor }
+
+constructor TVendedor.Create(ANome: string; AID: Integer; AMeta: Currency);
+begin
+  FNome := ANome;
+  FID := AID;
+  FMeta := AMeta;
+  FVendas := 0;
+end;
+
+procedure TVendedor.SetVendas(Value: Currency);
+begin
+  if FVendas <> Value then
+  begin
+    FVendas := Value;
+    if Assigned(FOnVendasAtualizadas) then
+      FOnVendasAtualizadas(Self); // Dispara o evento quando as vendas são atualizadas
+  end;
+end;
+
+procedure TVendedor.AtualizarVendas(Valor: Currency);
+begin
+  SetVendas(FVendas + Valor); // Incrementa o valor das vendas
+end;
+
+end.
+

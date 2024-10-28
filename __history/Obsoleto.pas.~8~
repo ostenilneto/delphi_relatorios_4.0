@@ -1,0 +1,81 @@
+unit Obsoleto;
+
+interface
+
+uses
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Data.DB, Vcl.StdCtrls, Vcl.Buttons,
+  Vcl.Grids, Vcl.DBGrids, Vcl.ExtCtrls;
+
+type
+  TFrmObsoleto = class(TForm)
+    Panel1: TPanel;
+    GridObsoleto: TDBGrid;
+    BtnPesquisar: TBitBtn;
+    BtnExportar: TBitBtn;
+    BtnSair: TBitBtn;
+    procedure BtnSairClick(Sender: TObject);
+    procedure BtnPesquisarClick(Sender: TObject);
+    procedure FormShow(Sender: TObject);
+    procedure GridObsoletoTitleClick(Column: TColumn);
+  private
+    { Private declarations }
+  public
+    { Public declarations }
+  end;
+
+var
+  FrmObsoleto: TFrmObsoleto;
+  Ascendente: Boolean;
+
+implementation
+
+{$R *.dfm}
+
+uses DmRel;
+
+procedure TFrmObsoleto.BtnPesquisarClick(Sender: TObject);
+begin
+  with DataModule1.QryObsoleto do
+  begin
+      Close;
+      Open;
+  end;
+end;
+
+procedure TFrmObsoleto.BtnSairClick(Sender: TObject);
+begin
+  with DataModule1 do
+    Begin
+          QryObsoleto.Close;
+          FrmObsoleto.Close;
+    End;
+end;
+
+procedure TFrmObsoleto.FormShow(Sender: TObject);
+begin
+  Ascendente := False;
+end;
+
+procedure TFrmObsoleto.GridObsoletoTitleClick(Column: TColumn);
+var
+i ,col:integer;
+begin
+  with DataModule1 do
+  Begin
+    Try
+      for i:=0 to Column.Grid.FieldCount - 1 do
+      begin
+      Ascendente:= not Ascendente ;
+      If Ascendente then
+        QryObsoleto.IndexFieldNames := Column.FieldName
+      else
+        QryObsoleto.IndexFieldNames := Column.FieldName;
+      End;
+    Except
+      ShowMessage('Não foi possivel organizar');
+    End;
+  end;
+end;
+
+end.

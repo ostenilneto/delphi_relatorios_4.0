@@ -1,0 +1,45 @@
+unit TVendedor;
+
+interface
+
+uses
+  Classes, SysUtils, Graphics;
+
+type
+  TVendedor = class
+  private
+    FNome: string;
+    FID: Integer;
+    FVendas: Currency;
+    FMeta: Currency;
+    FFoto: TPicture; // Armazena a foto do vendedor
+  public
+    constructor Create(ANome: string; AID: Integer; AMeta: Currency; Foto: TPicture);
+    destructor Destroy; override;
+    property Nome: string read FNome write FNome;
+    property ID: Integer read FID write FID;
+    property Vendas: Currency read FVendas write FVendas;
+    property Meta: Currency read FMeta write FMeta;
+    property Foto: TPicture read FFoto write FFoto;
+  end;
+
+implementation
+
+constructor TVendedor.Create(ANome: string; AID: Integer; AMeta: Currency; Foto: TPicture);
+begin
+  FNome := ANome;
+  FID := AID;
+  FMeta := AMeta;
+  FVendas := 0;
+  FFoto := TPicture.Create;
+  FFoto.Assign(Foto);
+end;
+
+destructor TVendedor.Destroy;
+begin
+  FFoto.Free;
+  inherited;
+end;
+
+end.
+

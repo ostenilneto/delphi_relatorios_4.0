@@ -1,0 +1,108 @@
+unit Amaro;
+
+interface
+
+uses
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes,
+  Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Data.DB, Vcl.Grids, ExcelXP,
+  Vcl.DBGrids, Vcl.StdCtrls, Vcl.ComCtrls, Vcl.Buttons, Vcl.ExtCtrls, OleServer,
+  ADODB, ComObj, Mask;
+
+type
+  TFrmAmaro = class(TForm)
+    GridAmaro: TDBGrid;
+    Panel1: TPanel;
+    BtnPesquisar: TBitBtn;
+    BtnExportar: TBitBtn;
+    BtnSair: TBitBtn;
+    DateTimePicker1: TDateTimePicker;
+    DateTimePicker2: TDateTimePicker;
+    Label1: TLabel;
+    Label2: TLabel;
+    BtnLimpar: TBitBtn;
+    procedure FormShow(Sender: TObject);
+    procedure BtnLimparClick(Sender: TObject);
+    procedure BtnSairClick(Sender: TObject);
+    procedure BtnPesquisarClick(Sender: TObject);
+    procedure ExpXLS(DataSet: TDataSet; Arq: string);
+    procedure BtnExportarClick(Sender: TObject);
+  private
+    { Private declarations }
+  public
+    { Public declarations }
+  end;
+
+var
+  FrmAmaro: TFrmAmaro;
+
+implementation
+
+{$R *.dfm}
+
+uses DmRel, Principal;
+
+procedure ExpXLS(DataSet: TDataSet; Arq: string);
+var
+  ExcApp: OleVariant;
+  i,l: integer;
+begin
+  ExcApp := CreateOleObject('Excel.Application');
+  ExcApp.Visible := True;
+  ExcApp.WorkBooks.Add;
+  DataSet.First;
+  l := 1;
+  DataSet.First;
+  while not DataSet.EOF do
+  begin
+    for i := 0 to DataSet.Fields.Count - 1 do
+      ExcApp.WorkBooks[1].Sheets[1].Cells[l,i + 1] :=
+        DataSet.Fields[i].DisplayText;
+    DataSet.Next;
+    l := l + 1;
+  end;
+  ExcApp.WorkBooks[1].SaveAs(Arq);
+end;
+
+procedure TFrmAmaro.BtnExportarClick(Sender: TObject);
+begin
+  with DataModule1.QryAmaro do
+  begin
+    ExpXLS(CdsAmaro)
+  end;
+end;
+
+procedure TFrmAmaro.BtnLimparClick(Sender: TObject);
+begin
+    with DataModule1 do
+    begin
+      QryAmaro.Close;
+    end;
+end;
+
+procedure TFrmAmaro.BtnPesquisarClick(Sender: TObject);
+begin
+  with DataModule1.QryAmaro do
+  begin
+      Close;
+      ParamByName('inicio').Value := DatetoStr(DateTimePicker1.Date);
+      ParamByName('fim').Value := DatetoStr(DateTimePicker2.Date);
+      Open;
+  end;
+end;
+
+procedure TFrmAmaro.BtnSairClick(Sender: TObject);
+begin
+  with DataModule1 do
+    Begin
+          QryAmaro.Close;
+          FrmAmaro.Close;
+    End;
+end;
+
+procedure TFrmAmaro.FormShow(Sender: TObject);
+begin
+    datetimepicker1.date:= now-1;
+    datetimepicker2.date:= now-1;
+end;
+
+end.

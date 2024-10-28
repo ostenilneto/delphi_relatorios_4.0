@@ -1,0 +1,173 @@
+unit Versao;
+
+interface
+
+uses
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, Vcl.Buttons, Vcl.ExtCtrls, IniFiles;
+
+type
+  TFrmVersao = class(TForm)
+    LabelVersion: TLabel;
+    BtnSair: TBitBtn;
+    MemoChanges: TMemo;
+    Panel1: TPanel;
+    Panel2: TPanel;
+    ComboBoxVersions: TComboBox;
+    Label1: TLabel;
+    procedure FormCreate(Sender: TObject);
+    procedure ComboBoxVersionsChange(Sender: TObject);
+    procedure BtnSairClick(Sender: TObject);
+  private
+    function GetAppVersion: string;
+  public
+    { Public declarations }
+  end;
+
+var
+  FrmVersao: TFrmVersao;
+
+implementation
+
+{$R *.dfm}
+
+procedure TFrmVersao.FormCreate(Sender: TObject);
+var
+  Ini: TIniFile;
+  Sections: TStringList;
+  I: Integer;
+  FilePath, VersaoInfo: string;
+begin
+  LabelVersion.Caption := 'Versão Atual: ' + GetAppVersion;
+
+  MemoChanges.Lines.Clear;  // Limpa o Memo antes de carregar novo conteúdo
+
+  // Caminho do arquivo INI (pode ser ajustado conforme necessário)
+  FilePath := ExtractFilePath(Application.ExeName) + 'Changelog.ini';
+
+  // Cria uma instância do TIniFile
+  Ini := TIniFile.Create(FilePath);
+  Sections := TStringList.Create;
+
+  try
+    // Obtém as chaves (versões) da seção "Versao"
+    Ini.ReadSection('Versao', Sections);
+
+    // Popula o ComboBox com as versões e suas descrições
+    for i := 0 to Sections.Count - 1 do
+    begin
+      ComboBoxVersions.Items.Add(Sections[i]);
+    end;
+
+     // Seleciona a primeira versão por padrão (opcional)
+    if ComboBoxVersions.Items.Count > 0 then
+      ComboBoxVersions.ItemIndex := 0;
+
+    // Chama o evento para atualizar o Memo com a descrição da primeira versão
+    ComboBoxVersionsChange(ComboBoxVersions);
+
+  finally
+    // Libera memória
+    Ini.Free;
+    Sections.Free;
+  end;
+end;
+
+
+procedure TFrmVersao.ComboBoxVersionsChange(Sender: TObject);
+var
+  Ini: TIniFile;
+  FilePath, Versao, Descricao: string;
+  Sections: TStringList;
+  I: Integer;
+begin
+  // Caminho do arquivo INI (ajuste conforme necessário)
+  FilePath := ExtractFilePath(Application.ExeName) + 'Changelog.ini';
+
+  // Verifica se uma versão foi selecionada no ComboBox
+  if ComboBoxVersions.ItemIndex = -1 then Exit;
+
+  // Obtém a versão selecionada
+  Versao := ComboBoxVersions.Items[ComboBoxVersions.ItemIndex];
+
+  // Cria uma instância do TIniFile
+  Ini := TIniFile.Create(FilePath);
+
+  try
+
+    for i := 0 to Sections.Count - 1 do
+    begin
+      Versao := Sections[i];  // Pega a versão (chave)
+      Descricao := Ini.ReadString('Versao', Versao, 'Descrição não encontrada');
+
+      // Substitui o caractere "|" por quebras de linha reais
+      Descricao := StringReplace(Descricao, '|', #13#10, [rfReplaceAll]);
+
+      // Exibe todo o texto da descrição no MemoChanges
+      MemoChanges.Lines.Add('Versão: ' + Version);
+      MemoChanges.Lines.Add(Descricao);
+      MemoChanges.Lines.Add('');  // Adiciona uma linha em branco para pular linha
+    end;
+
+  finally
+    Ini.Free;
+  end;
+end;
+
+procedure TFrmVersao.BtnSairClick(Sender: TObject);
+begin
+  FrmVersao.Close;
+end;
+
+function TFrmVersao.GetAppVersion: string;
+var
+  FileName: string;
+  InfoSize, VerSize: DWORD;
+  VerInfo: Pointer;
+  VerValue: PVSFixedFileInfo;
+  Dummy: DWORD;
+  Major, Minor, Release, Build: Word;
+begin
+  // Obtém o nome do arquivo executável
+  FileName := ParamStr(0);
+
+  // Obtém o tamanho da informação de versão
+  InfoSize := GetFileVersionInfoSize(PChar(FileName), Dummy);
+
+  if InfoSize = 0 then
+  begin
+    Result := 'Versão não disponível';
+    Exit;
+  end;
+
+  // Aloca memória para armazenar a informação de versão
+  GetMem(VerInfo, InfoSize);
+  try
+    // Obtém a informação de versão do arquivo
+    if GetFileVersionInfo(PChar(FileName), 0, InfoSize, VerInfo) then
+    begin
+      // Obtém o valor da versão
+      if VerQueryValue(VerInfo, '\', Pointer(VerValue), VerSize) then
+      begin
+        // Extrai os números de versão: Major.Minor.Release.Build
+        Major := HiWord(VerValue.dwFileVersionMS);
+        Minor := LoWord(VerValue.dwFileVersionMS);
+        //Release := HiWord(VerValue.dwFileVersionLS);
+        //Build := LoWord(VerValue.dwFileVersionLS);
+
+        // Formata a string da versão
+        Result := Format('%d.%d', [Major, Minor{, Release, Build}]);
+      end
+      else
+        Result := 'Erro ao obter a versão';
+    end
+    else
+      Result := 'Erro ao obter a versão';
+  finally
+    // Libera a memória alocada
+    FreeMem(VerInfo, InfoSize);
+  end;
+end;
+
+
+end.

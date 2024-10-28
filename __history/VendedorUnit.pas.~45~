@@ -1,0 +1,31 @@
+unit VendedorUnit;
+
+interface
+
+uses
+  System.Generics.Collections, System.SysUtils;
+
+type
+  TVendedor = class
+  private
+    FNome: String;
+    FVendas: Double;
+    FFotoPath: String;
+  public
+    constructor Create(const Nome: String; Vendas: Double; const FotoPath: String);
+    property Nome: String read FNome write FNome;
+    property Vendas: Double read FVendas write FVendas;
+    property FotoPath: String read FFotoPath write FFotoPath;
+  end;
+
+implementation
+
+constructor TVendedor.Create(const Nome: String; Vendas: Double; const FotoPath: String);
+begin
+  FNome := Nome;
+  FVendas := Vendas;
+  FFotoPath := FotoPath;
+end;
+
+
+end.

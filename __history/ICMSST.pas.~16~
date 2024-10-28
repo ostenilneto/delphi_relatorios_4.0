@@ -1,0 +1,152 @@
+unit ICMSST;
+
+interface
+
+uses
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Data.DB, Vcl.Grids, Vcl.DBGrids, ExcelXP,
+  Vcl.ComCtrls, Vcl.StdCtrls, Vcl.Buttons, Vcl.ExtCtrls, ComObj;
+
+type
+  TFrmIcmsST = class(TForm)
+    Panel1: TPanel;
+    Label1: TLabel;
+    Label2: TLabel;
+    BtnPesquisar: TBitBtn;
+    BtnExportar: TBitBtn;
+    BtnSair: TBitBtn;
+    DateTimePicker1: TDateTimePicker;
+    DateTimePicker2: TDateTimePicker;
+    BtnLimpar: TBitBtn;
+    GridIcmsST: TDBGrid;
+    procedure BtnLimparClick(Sender: TObject);
+    procedure DimensionarGrid(dbg: TDBGrid);
+    procedure BtnPesquisarClick(Sender: TObject);
+    procedure BtnExportarClick(Sender: TObject);
+    procedure BtnSairClick(Sender: TObject);
+    procedure FormShow(Sender: TObject);
+  private
+    { Private declarations }
+  public
+    { Public declarations }
+  end;
+
+var
+  FrmIcmsST: TFrmIcmsST;
+
+implementation
+
+{$R *.dfm}
+
+uses DmRel;
+
+procedure TFrmIcmsST.BtnExportarClick(Sender: TObject);
+Var
+linha, coluna: integer;
+planilha: variant;
+valorCampo: string;
+begin
+  with DataModule1 do
+    Begin
+     planilha:= CreateOleObject('Excel.Application');
+     planilha.Workbooks.add(1);
+     planilha.Cells.Select;
+     planilha.Selection.NumberFormat := '@';
+     planilha.caption:= 'Exportação de dados para o excel';
+     planilha.visible:= true;
+     QryIcmsST.First;
+     for linha:= 0 to QryIcmsST.RecordCount-1 do
+     begin
+       for coluna:= 1 to QryIcmsST.FieldCount do
+        begin
+           valorCampo:= QryIcmsST.Fields[coluna-1].AsString;
+           planilha.cells[linha+2,coluna]:= valorCampo;
+        end;
+
+       QryIcmsST.Next;
+
+     end;
+     for coluna:=1 to QryIcmsST.FieldCount do
+     begin
+        valorCampo:= QryIcmsST.Fields[coluna-1].DisplayLabel;
+        planilha.cells[1,coluna]:= valorCampo;
+     end;
+     planilha.columns.AutoFit;
+     planilha.WorkSheets[1].Name:='NF com ICMSST';
+    End;
+end;
+
+procedure TFrmIcmsST.BtnLimparClick(Sender: TObject);
+begin
+      with DataModule1 do
+    begin
+      QryIcmsST.Close;
+    end;
+end;
+
+procedure TFrmIcmsST.BtnPesquisarClick(Sender: TObject);
+begin
+    with DataModule1.QryIcmsST do
+  begin
+      Close;
+      ParamByName('inicio').Value := DatetoStr(DateTimePicker1.Date);
+      ParamByName('fim').Value := DatetoStr(DateTimePicker2.Date);
+      Open;
+  end;
+
+  DimensionarGrid( GridIcmsST );
+end;
+
+procedure TFrmIcmsST.BtnSairClick(Sender: TObject);
+begin
+    with DataModule1 do
+    Begin
+      QryIcmsST.Close;
+      FrmIcmsST.Close;
+    End;
+end;
+
+procedure TFrmIcmsST.FormShow(Sender: TObject);
+begin
+  datetimepicker1.date:= now;
+  datetimepicker2.date:= now;
+  BtnPesquisar.SetFocus;
+end;
+
+procedure TFrmIcmsST.DimensionarGrid(DBGrid: TDBGrid);
+var
+  I, J: Integer;
+  MaxWidth: Integer;
+  TextWidth: Integer;
+  FieldText: string;
+begin
+  // Percorre todas as colunas do DBGrid
+  for I := 0 to DBGrid.Columns.Count - 1 do
+  begin
+    MaxWidth := 0;
+
+    // Percorre todas as linhas da coluna
+    for J := 0 to DBGrid.DataSource.DataSet.RecordCount - 1 do
+    begin
+      // Obtém o texto da célula atual
+      FieldText := DBGrid.Columns[I].Field.AsString;
+
+      // Calcula a largura do texto
+      TextWidth := DBGrid.Canvas.TextWidth(FieldText);
+
+      // Se a largura do texto atual for maior que o valor máximo anterior, atualize o máximo
+      if TextWidth > MaxWidth then
+        MaxWidth := TextWidth;
+
+      // Avança para o próximo registro (linha)
+      DBGrid.DataSource.DataSet.Next;
+    end;
+
+    // Retorna ao primeiro registro
+    DBGrid.DataSource.DataSet.First;
+
+    // Define a largura da coluna, adicionando um espaçamento extra
+    DBGrid.Columns[I].Width := MaxWidth + 20; // 20 pixels de margem
+  end;
+end;
+end.

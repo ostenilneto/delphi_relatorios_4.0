@@ -1,0 +1,136 @@
+unit AcoesCRM;
+
+interface
+
+uses
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Data.DB, Vcl.Grids, Vcl.DBGrids, DateUtils,
+  Vcl.StdCtrls, Vcl.DBCtrls, Vcl.ComCtrls, Vcl.Buttons, Vcl.ExtCtrls;
+
+type
+  TFrmVeicCRM = class(TForm)
+    Panel1: TPanel;
+    Label1: TLabel;
+    Label2: TLabel;
+    Relatório: TLabel;
+    Label6: TLabel;
+    BtnPesquisar: TBitBtn;
+    BtnExportar: TBitBtn;
+    BtnSair: TBitBtn;
+    DateTimePicker1: TDateTimePicker;
+    DateTimePicker2: TDateTimePicker;
+    BtnLimpar: TBitBtn;
+    DBLookupComboBox1: TDBLookupComboBox;
+    ComboBox1: TComboBox;
+    ComboBox2: TComboBox;
+    GridResult: TDBGrid;
+    procedure FormShow(Sender: TObject);
+    procedure BtnLimparClick(Sender: TObject);
+    procedure BtnSairClick(Sender: TObject);
+    procedure ComboBox1Change(Sender: TObject);
+  private
+    { Private declarations }
+  public
+    { Public declarations }
+  end;
+
+var
+  FrmVeicCRM: TFrmVeicCRM;
+
+implementation
+
+{$R *.dfm}
+
+uses DmRel;
+
+procedure TFrmVeicCRM.BtnLimparClick(Sender: TObject);
+begin
+  with DataModule1 do
+  Begin
+    QryAnivers.Close;
+    QryCRMVeic.Close;
+    QryCRMVeicModelo.Close;
+  End;
+end;
+
+procedure TFrmVeicCRM.BtnSairClick(Sender: TObject);
+begin
+  with DataModule1 do
+  Begin
+    QryAnivers.Close;
+    QryCRMVeic.Close;
+    QryCRMVeicModelo.Close;
+    FrmVeicCRM.Close;
+  End;
+end;
+
+procedure TFrmVeicCRM.ComboBox1Change(Sender: TObject);
+begin
+  if ComboBox1.ItemIndex = 0 then
+    begin
+      with DataModule1 do
+      Begin
+        QryAnivers.Close;
+        QryCRMVeic.Close;
+        QryCRMVeicModelo.Close;
+        ComboBox2.Enabled := False;
+        ComboBox2.Visible := False;
+        DtsCRM.DataSet := QryAnivers;
+        DBLookupComboBox1.Enabled := False;
+        DBLookupComboBox1.Visible := False;
+        Label6.Visible := False;
+        QryAnivers.Open;
+      End;
+    end
+    else if ComboBox1.ItemIndex = 1 then
+    begin
+      with DataModule1 do
+      Begin
+        QryAnivers.Close;
+        QryCRMVeic.Close;
+        QryCRMVeicModelo.Close;
+        ComboBox2.Enabled := False;
+        ComboBox2.Visible := False;
+        Label6.Caption := 'Veículo:';
+        DBLookupComboBox1.Enabled := True;
+        DBLookupComboBox1.Visible := True;
+        Label1.Visible := True;
+        DtsCRM.DataSet := QryCRMVeicModelo;
+        QryCRMVeicModelo.Open;
+        DBLookupComboBox1.KeyValue:= 4;
+      End;
+    end
+    else
+    begin
+            with DataModule1 do
+      Begin
+        QryAnivers.Close;
+        QryCRMVeic.Close;
+        QryCRMVeicModelo.Close;
+        DBLookupComboBox1.Enabled := False;
+        DBLookupComboBox1.Visible := False;
+        ComboBox2.Enabled := True;
+        ComboBox2.Visible := True;
+        Label6.Caption := 'Departamento:';
+        Label1.Visible := True;
+        DtsCRM.DataSet := QryCRMVeic;
+        Label6.Visible := True;
+        QryCRMVeicModelo.Open;
+        DBLookupComboBox1.KeyValue:= 4;
+      End;
+    end;
+end;
+
+procedure TFrmVeicCRM.FormShow(Sender: TObject);
+begin
+  datetimepicker1.date:= StartOfTheMonth(now);
+  datetimepicker2.date:= EndOfTheMonth(now);
+  ComboBox1.ItemIndex := 0;
+  DBLookupComboBox1.Enabled := False;
+  DBLookupComboBox1.Visible := False;
+  Label6.Visible := False;
+  ComboBox2.Enabled := False;
+  ComboBox2.Visible := False;
+end;
+
+end.

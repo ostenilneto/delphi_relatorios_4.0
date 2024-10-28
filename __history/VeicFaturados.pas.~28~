@@ -1,0 +1,227 @@
+unit VeicFaturados;
+
+interface
+
+uses
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes,
+  Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Data.DB, Vcl.DBCtrls,
+  Vcl.StdCtrls, Vcl.Grids, Vcl.DBGrids, Vcl.ComCtrls, Vcl.Buttons, Vcl.ExtCtrls,
+  DateUtils, Datasnap.DBClient;
+
+type
+  TFrmVeicFaturados = class(TForm)
+    Panel1: TPanel;
+    Label1: TLabel;
+    Label2: TLabel;
+    BtnPesquisar: TBitBtn;
+    BtnExportar: TBitBtn;
+    BtnSair: TBitBtn;
+    DateTimePicker1: TDateTimePicker;
+    DateTimePicker2: TDateTimePicker;
+    BtnLimpar: TBitBtn;
+    Panel2: TPanel;
+    Label5: TLabel;
+    GridResult: TDBGrid;
+    Panel4: TPanel;
+    Label3: TLabel;
+    GridMensal: TDBGrid;
+    ComboBox1: TComboBox;
+    DBLookupComboBox1: TDBLookupComboBox;
+    Label4: TLabel;
+    Label6: TLabel;
+    procedure FormShow(Sender: TObject);
+    procedure BtnLimparClick(Sender: TObject);
+    procedure BtnSairClick(Sender: TObject);
+    procedure BtnPesquisarClick(Sender: TObject);
+    procedure ComboBox1Change(Sender: TObject);
+    procedure DimensionarGrid(dbg: TDBGrid);
+  private
+    { Private declarations }
+  public
+    { Public declarations }
+  end;
+
+var
+  FrmVeicFaturados: TFrmVeicFaturados;
+
+implementation
+
+{$R *.dfm}
+
+uses DmRel;
+
+procedure TFrmVeicFaturados.BtnLimparClick(Sender: TObject);
+begin
+    with DataModule1 do
+  Begin
+        QryVFatur_mes.Close;
+        QryVFatur.Close;
+  End;
+end;
+
+procedure TFrmVeicFaturados.BtnPesquisarClick(Sender: TObject);
+begin
+  with DataModule1 do
+      Begin
+        QryVFatur_mes.Close;
+        QryVFatur.Close;
+        if ComboBox1.ItemIndex = 0 then
+        begin
+          QryVFatur_mes.ParamByName('departamento').Value := 100;
+          QryVFatur_mes.ParamByName('departamento2').Value := 110;
+          QryVFatur.ParamByName('departamento').Value := 100;
+          QryVFatur.ParamByName('departamento2').Value := 110;
+        end
+        else
+        begin
+          QryVFatur_mes.ParamByName('departamento').Value := 200;
+          QryVFatur_mes.ParamByName('departamento2').Value := 210;
+          QryVFatur.ParamByName('departamento').Value := 200;
+          QryVFatur.ParamByName('departamento2').Value := 210;
+        end;
+
+        QryVFatur_mes.ParamByName('inicio').Value := DatetoStr(DateTimePicker1.Date);
+        QryVFatur_mes.ParamByName('fim').Value := DatetoStr(DateTimePicker2.DateTime);
+        QryVFatur.ParamByName('vendedor').Value := DBLookupComboBox1.KeyValue;
+        QryVFatur.ParamByName('inicio').Value := DatetoStr(DateTimePicker1.Date);
+        QryVFatur.ParamByName('fim').Value := DatetoStr(DateTimePicker2.DateTime);
+        QryVFatur_mes.Open;
+        QryVFatur.Open;
+        DimensionarGrid( GridResult );
+        DimensionarGrid( GridMensal );
+      End;
+
+end;
+
+procedure TFrmVeicFaturados.BtnSairClick(Sender: TObject);
+begin
+      with DataModule1 do
+      Begin
+            QryVFatur_mes.Close;
+            QryVFatur.Close;
+            QryCad_Vendedor.Close;
+            FrmVeicFaturados.Close;
+      End;
+end;
+
+procedure TFrmVeicFaturados.ComboBox1Change(Sender: TObject);
+begin
+    with DataModule1 do
+      Begin
+        QryVFatur_mes.Close;
+        QryVFatur.Close;
+        QryCad_Vendedor.Close;
+        if ComboBox1.ItemIndex = 0 then
+        begin
+          QryVFatur_mes.ParamByName('departamento').Value := 100;
+          QryVFatur_mes.ParamByName('departamento2').Value := 110;
+          QryVFatur.ParamByName('departamento').Value := 100;
+          QryVFatur.ParamByName('departamento2').Value := 110;
+          QryCad_Vendedor.ParamByName('cargo').Value := 6;
+          QryCad_Vendedor.Open;
+          DBLookupComboBox1.KeyValue:= 607;
+          QryVFatur_mes.Open;
+          DimensionarGrid( GridMensal );
+        end
+        else
+        begin
+          QryVFatur_mes.ParamByName('departamento').Value := 200;
+          QryVFatur_mes.ParamByName('departamento2').Value := 210;
+          QryVFatur.ParamByName('departamento').Value := 200;
+          QryVFatur.ParamByName('departamento2').Value := 210;
+          QryCad_Vendedor.ParamByName('cargo').Value := 7;
+          QryCad_Vendedor.Open;
+          DBLookupComboBox1.KeyValue:= 521;
+          QryVFatur_mes.Open;
+          DimensionarGrid( GridMensal );
+        end;
+      End;
+end;
+
+procedure TFrmVeicFaturados.FormShow(Sender: TObject);
+begin
+  datetimepicker1.date:= StartOfTheMonth(now);
+  datetimepicker2.DateTime:= now;
+
+  with DataModule1.QryCad_Vendedor do
+  Begin
+     Close;
+     ParamByName('cargo').Value := 6;
+     Open;
+  End;
+
+  with DataModule1.QryVFatur_mes do
+  Begin
+    Close;
+    ParamByName('inicio').Value := DatetoStr(DateTimePicker1.Date);
+    ParamByName('fim').Value := DatetoStr(DateTimePicker2.Date);
+    ParamByName('departamento').Value := 100;
+    ParamByName('departamento2').Value := 110;
+
+    Open;
+  End;
+
+  DimensionarGrid( GridMensal );
+
+  ComboBox1.ItemIndex := 0;
+  DBLookupComboBox1.KeyValue:= 607;
+
+end;
+
+procedure TFrmVeicFaturados.DimensionarGrid(dbg: TDBGrid);
+type
+  TArray = Array of Integer;
+  procedure AjustarColumns(Swidth, TSize: Integer; Asize: TArray);
+  var
+    idx: Integer;
+  begin
+    if TSize = 0 then
+    begin
+      TSize := dbg.Columns.count;
+      for idx := 0 to dbg.Columns.count - 1 do
+        dbg.Columns[idx].Width := (dbg.Width - dbg.Canvas.TextWidth('AAAAAA')
+          ) div TSize
+    end
+    else
+      for idx := 0 to dbg.Columns.count - 1 do
+        dbg.Columns[idx].Width := dbg.Columns[idx].Width +
+          (Swidth * Asize[idx] div TSize);
+  end;
+
+var
+  idx, Twidth, TSize, Swidth: Integer;
+  AWidth: TArray;
+  Asize: TArray;
+  NomeColuna: String;
+begin
+  SetLength(AWidth, dbg.Columns.count);
+  SetLength(Asize, dbg.Columns.count);
+  Twidth := 0;
+  TSize := 0;
+  for idx := 0 to dbg.Columns.count - 1 do
+  begin
+    NomeColuna := dbg.Columns[idx].Title.Caption;
+    dbg.Columns[idx].Width := dbg.Canvas.TextWidth
+      (dbg.Columns[idx].Title.Caption + 'A');
+    AWidth[idx] := dbg.Columns[idx].Width;
+    Twidth := Twidth + AWidth[idx];
+
+    if Assigned(dbg.Columns[idx].Field) then
+      Asize[idx] := dbg.Columns[idx].Field.Size
+    else
+      Asize[idx] := 1;
+
+    TSize := TSize + Asize[idx];
+  end;
+  if TDBGridOption.dgColLines in dbg.Options then
+    Twidth := Twidth + dbg.Columns.count;
+
+  // adiciona a largura da coluna indicada do cursor
+  if TDBGridOption.dgIndicator in dbg.Options then
+    Twidth := Twidth + IndicatorWidth;
+
+  Swidth := dbg.ClientWidth - Twidth;
+  AjustarColumns(Swidth, TSize, Asize);
+end;
+
+end.

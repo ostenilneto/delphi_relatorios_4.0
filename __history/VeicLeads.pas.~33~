@@ -1,0 +1,281 @@
+unit VeicLeads;
+
+interface
+
+uses
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Data.DB, Vcl.Grids, Vcl.DBGrids, DateUtils,
+  Vcl.DBCtrls, Vcl.StdCtrls, Vcl.ComCtrls, Vcl.Buttons, Vcl.ExtCtrls;
+
+type
+  TFrmVeicLeads = class(TForm)
+    Panel1: TPanel;
+    Label1: TLabel;
+    Label2: TLabel;
+    Label4: TLabel;
+    Label6: TLabel;
+    BtnPesquisar: TBitBtn;
+    BtnExportar: TBitBtn;
+    BtnSair: TBitBtn;
+    DateTimePicker1: TDateTimePicker;
+    DateTimePicker2: TDateTimePicker;
+    BtnLimpar: TBitBtn;
+    ComboBox1: TComboBox;
+    DBLookupComboBox1: TDBLookupComboBox;
+    Panel2: TPanel;
+    Label5: TLabel;
+    GridResult: TDBGrid;
+    Panel4: TPanel;
+    Label3: TLabel;
+    GridMensal: TDBGrid;
+    DBLookupComboBox2: TDBLookupComboBox;
+    procedure FormShow(Sender: TObject);
+    procedure DimensionarGrid(dbg: TDBGrid);
+    procedure ComboBox1Change(Sender: TObject);
+    procedure BtnLimparClick(Sender: TObject);
+    procedure BtnSairClick(Sender: TObject);
+    procedure BtnPesquisarClick(Sender: TObject);
+  private
+    { Private declarations }
+  public
+    { Public declarations }
+  end;
+
+var
+  FrmVeicLeads: TFrmVeicLeads;
+
+implementation
+
+{$R *.dfm}
+
+uses DmRel;
+
+procedure TFrmVeicLeads.BtnLimparClick(Sender: TObject);
+begin
+  with DataModule1 do
+  Begin
+        QryLeads.Close;
+        QryLeads_origem.Close;
+        QryLeads_vendedor.Close;
+  End;
+end;
+
+procedure TFrmVeicLeads.BtnPesquisarClick(Sender: TObject);
+begin
+  GridResult.DataSource.DataSet.Close;
+  GridMensal.DataSource.DataSet.Close;
+  with DataModule1.QryLeads do
+    Begin
+       Close;
+       ParamByName('inicio').Value := DatetoStr(DateTimePicker1.Date);
+       ParamByName('fim').Value := DatetoStr(DateTimePicker2.Date);
+       ParamByName('inicio2').Value := DatetoStr(DateTimePicker1.Date);
+       ParamByName('fim2').Value := DatetoStr(DateTimePicker2.Date);
+       ParamByName('inicio3').Value := DatetoStr(DateTimePicker1.Date);
+       ParamByName('fim3').Value := DatetoStr(DateTimePicker2.Date);
+       Open;
+    End;
+    DimensionarGrid( GridMensal );
+
+  if ComboBox1.ItemIndex = 1 then
+    begin
+      with DataModule1.QryLeads_vendedor do
+        Begin
+          ParamByName('inicio').Value := DateTimetoStr(DateTimePicker1.Date);
+          ParamByName('fim').Value := DateTimetoStr(DateTimePicker2.Date);
+          ParamByName('vendedor').Value := DBLookupComboBox2.KeyValue;
+          Open;
+        End;
+  end
+  else begin
+        with DataModule1.QryLeads_origem do
+        Begin
+          ParamByName('inicio').Value := DateTimetoStr(DateTimePicker1.Date);
+          ParamByName('fim').Value := DateTimetoStr(DateTimePicker2.Date);
+          ParamByName('inicio2').Value := DateTimetoStr(DateTimePicker1.Date);
+          ParamByName('fim2').Value := DateTimetoStr(DateTimePicker2.Date);
+          ParamByName('origem').Value := DBLookupComboBox1.KeyValue;
+          Open;
+        End;
+  end;
+end;
+
+procedure TFrmVeicLeads.BtnSairClick(Sender: TObject);
+begin
+    with DataModule1 do
+  Begin
+        QryLeads.Close;
+        QryLeads_origem.Close;
+        QryLeads_vendedor.Close;
+        QryCad_Vendedor.Close;
+        QryOrigem_Trafego.Close;
+        FrmVeicLeads.Close;
+  End;
+end;
+
+procedure TFrmVeicLeads.ComboBox1Change(Sender: TObject);
+begin
+  with DataModule1 do
+    Begin
+      QryLeads.Close;
+      QryLeads_origem.Close;
+      QryLeads_vendedor.Close;
+      QryCad_Vendedor.Close;
+      QryOrigem_Trafego.Close;
+      if ComboBox1.ItemIndex = 1 then
+      begin
+        QryCad_Vendedor.ParamByName('cargo').Value := 6;
+        QryCad_Vendedor.Open;
+        Label6.Caption := 'Escolha o vendedor:';
+        DtsLeads_.DataSet := QryLeads_vendedor;
+        DBLookupComboBox2.KeyValue:= 607;
+        DBLookupComboBox1.Enabled := False;
+        DBLookupComboBox1.Visible := False;
+        DBLookupComboBox2.Enabled := True;
+        DBLookupComboBox2.Visible := True;
+        with DataModule1.QryLeads do
+          Begin
+             Close;
+             ParamByName('inicio').Value := DatetoStr(DateTimePicker1.Date);
+             ParamByName('fim').Value := DatetoStr(DateTimePicker2.Date);
+             ParamByName('inicio2').Value := DatetoStr(DateTimePicker1.Date);
+             ParamByName('fim2').Value := DatetoStr(DateTimePicker2.Date);
+             ParamByName('inicio3').Value := DatetoStr(DateTimePicker1.Date);
+             ParamByName('fim3').Value := DatetoStr(DateTimePicker2.Date);
+             Open;
+          End;
+        DimensionarGrid( GridMensal );
+      end
+      else
+      begin
+        QryOrigem_Trafego.Open;
+        Label6.Caption := 'Origem de Tráfego:';
+        DtsLeads_.DataSet := QryLeads_origem;
+        DBLookupComboBox1.ListFieldIndex:= 0;
+        DBLookupComboBox1.Enabled := True;
+        DBLookupComboBox1.Visible := True;
+        DBLookupComboBox2.Enabled := False;
+        DBLookupComboBox2.Visible := False;
+        with DataModule1.QryLeads do
+          Begin
+             Close;
+             ParamByName('inicio').Value := DatetoStr(DateTimePicker1.Date);
+             ParamByName('fim').Value := DatetoStr(DateTimePicker2.Date);
+             ParamByName('inicio2').Value := DatetoStr(DateTimePicker1.Date);
+             ParamByName('fim2').Value := DatetoStr(DateTimePicker2.Date);
+             ParamByName('inicio3').Value := DatetoStr(DateTimePicker1.Date);
+             ParamByName('fim3').Value := DatetoStr(DateTimePicker2.Date);
+             Open;
+          End;
+        DimensionarGrid( GridMensal );
+      end;
+    End;
+end;
+
+procedure TFrmVeicLeads.DimensionarGrid(dbg: TDBGrid);
+type
+  TArray = Array of Integer;
+
+  procedure AjustarColumns(Swidth, TSize: Integer; Asize: TArray);
+  var
+    idx: Integer;
+  begin
+    if TSize = 0 then
+    begin
+      TSize := dbg.Columns.Count;
+      for idx := 0 to dbg.Columns.Count - 1 do
+        dbg.Columns[idx].Width := (dbg.Width - dbg.Canvas.TextWidth('AAAAAA')) div TSize;
+    end
+    else
+    begin
+      for idx := 0 to dbg.Columns.Count - 1 do
+        dbg.Columns[idx].Width := dbg.Columns[idx].Width + (Swidth * Asize[idx] div TSize);
+    end;
+  end;
+
+var
+  idx, Twidth, TSize, Swidth: Integer;
+  AWidth, Asize: TArray;
+  NomeColuna: String;
+begin
+  // Certifique-se de que existam colunas no grid
+  if dbg.Columns.Count = 0 then Exit;
+
+  // Inicializar arrays para armazenar larguras e tamanhos relativos
+  SetLength(AWidth, dbg.Columns.Count);
+  SetLength(Asize, dbg.Columns.Count);
+  Twidth := 0;
+  TSize := 0;
+
+  // Evitar atualizações visuais durante o redimensionamento
+  LockWindowUpdate(dbg.Handle);
+  try
+    // Loop para calcular as larguras das colunas com base nos títulos e nos dados
+    for idx := 0 to dbg.Columns.Count - 1 do
+    begin
+      NomeColuna := dbg.Columns[idx].Title.Caption;
+
+      // Ajustar a largura baseada no título e nos dados da coluna
+      dbg.Columns[idx].Width := Max(
+        dbg.Canvas.TextWidth(dbg.Columns[idx].Title.Caption + 'A'), // Cabeçalho
+        dbg.Canvas.TextWidth(dbg.Columns[idx].Field.AsString + ' ') // Conteúdo
+      );
+
+      // Armazenar a largura da coluna
+      AWidth[idx] := dbg.Columns[idx].Width;
+      Twidth := Twidth + AWidth[idx];
+
+      // Tamanho relativo da coluna baseado no tamanho do campo ou padrão 1
+      if Assigned(dbg.Columns[idx].Field) then
+        Asize[idx] := dbg.Columns[idx].Field.Size
+      else
+        Asize[idx] := 1;
+
+      TSize := TSize + Asize[idx];
+    end;
+
+    // Adicionar largura das linhas de colunas, se aplicável
+    if dgColLines in dbg.Options then
+      Twidth := Twidth + dbg.Columns.Count;
+
+    // Adicionar a largura do indicador, se aplicável
+    if dgIndicator in dbg.Options then
+      Twidth := Twidth + IndicatorWidth;
+
+    // Determinar o espaço disponível para ajustar as colunas
+    Swidth := dbg.ClientWidth - Twidth;
+
+    // Ajustar as colunas proporcionalmente ao espaço disponível
+    AjustarColumns(Swidth, TSize, Asize);
+  finally
+    // Liberar o bloqueio da janela para permitir atualizações visuais
+    LockWindowUpdate(0);
+  end;
+end;
+
+procedure TFrmVeicLeads.FormShow(Sender: TObject);
+begin
+  datetimepicker1.date:= StartOfTheMonth(now);
+  datetimepicker2.DateTime:= now;
+  DBLookupComboBox2.Enabled := False;
+  DBLookupComboBox2.Visible := False;
+
+  with DataModule1.QryLeads do
+  Begin
+     Close;
+     ParamByName('inicio').Value := DatetoStr(DateTimePicker1.Date);
+     ParamByName('fim').Value := DatetoStr(DateTimePicker2.Date);
+     ParamByName('inicio2').Value := DatetoStr(DateTimePicker1.Date);
+     ParamByName('fim2').Value := DatetoStr(DateTimePicker2.Date);
+     ParamByName('inicio3').Value := DatetoStr(DateTimePicker1.Date);
+     ParamByName('fim3').Value := DatetoStr(DateTimePicker2.Date);
+     Open;
+  End;
+  DataModule1.QryOrigem_Trafego.Open;
+  ComboBox1.ItemIndex := 0;
+  DBLookupComboBox1.KeyValue:= 14;
+
+  DimensionarGrid( GridMensal );
+end;
+
+end.

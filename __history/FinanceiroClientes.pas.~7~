@@ -1,0 +1,129 @@
+unit FinanceiroClientes;
+
+interface
+
+uses
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Data.DB, Vcl.Grids, Vcl.DBGrids,
+  Vcl.ComCtrls, Vcl.StdCtrls, Vcl.Buttons, Vcl.ExtCtrls;
+
+type
+  TFrmFinanceiroClientes = class(TForm)
+    Panel1: TPanel;
+    BtnPesquisar: TBitBtn;
+    BtnExportar: TBitBtn;
+    BtnSair: TBitBtn;
+    PageControl1: TPageControl;
+    TabSheet1: TTabSheet;
+    TabSheet2: TTabSheet;
+    TabSheet3: TTabSheet;
+    TabSheet4: TTabSheet;
+    GridClientes1: TDBGrid;
+    GridClientes2: TDBGrid;
+    GridClientes3: TDBGrid;
+    GridClientes4: TDBGrid;
+    procedure BtnSairClick(Sender: TObject);
+    procedure GridClientes1TitleClick(Column: TColumn);
+    procedure GridClientes2TitleClick(Column: TColumn);
+    procedure GridClientes3TitleClick(Column: TColumn);
+    procedure GridClientes4TitleClick(Column: TColumn);
+    procedure BtnPesquisarClick(Sender: TObject);
+  private
+    { Private declarations }
+  public
+    { Public declarations }
+  end;
+
+var
+  FrmFinanceiroClientes: TFrmFinanceiroClientes;
+
+implementation
+
+{$R *.dfm}
+
+uses DmRel;
+
+procedure TFrmFinanceiroClientes.BtnPesquisarClick(Sender: TObject);
+begin
+  Screen.Cursor := crHourglass;
+
+  with DataModule1 do
+  begin
+    QryClientes1.Close;
+    QryClientes2.Close;
+    QryClientes3.Close;
+    QryClientes4.Close;
+    QryClientes1.Open;
+    QryClientes2.Open;
+    QryClientes3.Open;
+    QryClientes4.Open;
+  end;
+
+  Screen.Cursor := crDefault;
+end;
+
+procedure TFrmFinanceiroClientes.BtnSairClick(Sender: TObject);
+begin
+  with DataModule1 do
+    Begin
+          QryClientes1.Close;
+          QryClientes2.Close;
+          QryClientes3.Close;
+          QryClientes4.Close;
+          FrmFinanceiroClientes.Close;
+    End;
+end;
+
+procedure TFrmFinanceiroClientes.GridClientes1TitleClick(Column: TColumn);
+var
+i ,col:integer;
+begin
+  with DataModule1.QryClientes1 do
+  Begin
+        If IndexFieldNames = Column.FieldName + ':D' then
+          IndexFieldNames := Column.FieldName + ':A'  //crescente
+        else
+          IndexFieldNames := Column.FieldName + ':D'; // decrescente
+        End;
+end;
+
+procedure TFrmFinanceiroClientes.GridClientes2TitleClick(Column: TColumn);
+var
+i ,col:integer;
+begin
+  with DataModule1.QryClientes2 do
+  Begin
+        If IndexFieldNames = Column.FieldName + ':D' then
+          IndexFieldNames := Column.FieldName + ':A'  //crescente
+        else
+          IndexFieldNames := Column.FieldName + ':D'; // decrescente
+        End;
+end;
+
+procedure TFrmFinanceiroClientes.GridClientes3TitleClick(Column: TColumn);
+var
+i ,col:integer;
+begin
+  with DataModule1.QryClientes3 do
+  Begin
+        If IndexFieldNames = Column.FieldName + ':D' then
+          IndexFieldNames := Column.FieldName + ':A'  //crescente
+        else
+          IndexFieldNames := Column.FieldName + ':D'; // decrescente
+        End;
+end;
+
+procedure TFrmFinanceiroClientes.GridClientes4TitleClick(Column: TColumn);
+var
+i ,col:integer;
+begin
+  with DataModule1.QryClientes4 do
+  Begin
+        If IndexFieldNames = Column.FieldName + ':D' then
+          IndexFieldNames := Column.FieldName + ':A'  //crescente
+        else
+          IndexFieldNames := Column.FieldName + ':D'; // decrescente
+        End;
+end;
+
+end.

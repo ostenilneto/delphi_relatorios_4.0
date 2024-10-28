@@ -1,0 +1,41 @@
+unit VendedorUnit;
+
+interface
+
+uses
+  Classes, SysUtils, Graphics;
+
+type
+  TVendedor = class
+  private
+    FNome: string;
+    FTotalVendas: Double;
+    FMeta: Double;
+  public
+    constructor Create(const ANome: string; ATotalVendas, AMeta: Double);
+    destructor Destroy;
+    property Nome: string read FNome;
+    property TotalVendas: Double read FTotalVendas;
+    property Meta: Double read FMeta;
+  end;
+
+
+implementation
+
+constructor TVendedor.Create(const ANome: string; ATotalVendas, AMeta: Double);
+begin
+  FNome := ANome;
+  FTotalVendas := ATotalVendas;
+  FMeta := AMeta;
+end;
+
+destructor TVendedor.Destroy;
+begin
+  // Liberar recursos alocados
+  inherited;
+  FreeAndNil(TVendedor);
+end;
+
+
+end.
+

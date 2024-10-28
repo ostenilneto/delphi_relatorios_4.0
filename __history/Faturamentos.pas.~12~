@@ -1,0 +1,57 @@
+unit Faturamentos;
+
+interface
+
+uses
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Data.DB, Vcl.Grids, Vcl.DBGrids,
+  Vcl.StdCtrls, Vcl.ComCtrls, Vcl.Buttons, Vcl.ExtCtrls;
+
+type
+  TFrmFaturamentos = class(TForm)
+    GridFaturamentos: TDBGrid;
+    Panel1: TPanel;
+    BtnPesquisar: TBitBtn;
+    BtnExportar: TBitBtn;
+    BtnSair: TBitBtn;
+    DateTimePicker1: TDateTimePicker;
+    DateTimePicker2: TDateTimePicker;
+    Label1: TLabel;
+    Label2: TLabel;
+    BtnLimpar: TBitBtn;
+    procedure FormShow(Sender: TObject);
+    procedure BtnLimparClick(Sender: TObject);
+    procedure BtnSairClick(Sender: TObject);
+  private
+    { Private declarations }
+  public
+    { Public declarations }
+  end;
+
+var
+  FrmFaturamentos: TFrmFaturamentos;
+
+implementation
+
+{$R *.dfm}
+
+uses DmRel, Principal;
+
+procedure TFrmFaturamentos.BtnLimparClick(Sender: TObject);
+begin
+    DmRel.DataModule1.QryFaturamentos.Close;
+end;
+
+procedure TFrmFaturamentos.BtnSairClick(Sender: TObject);
+begin
+    DmRel.DataModule1.QryFaturamentos.Close;
+    TFrmFaturamentos.close;
+end;
+
+procedure TFrmFaturamentos.FormShow(Sender: TObject);
+begin
+    datetimepicker1.date:= now-1;
+    datetimepicker2.date:= now-1;
+end;
+
+end.

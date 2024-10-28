@@ -1,0 +1,200 @@
+unit ICMSST;
+
+interface
+
+uses
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Data.DB, Vcl.Grids, Vcl.DBGrids, ExcelXP,
+  Vcl.ComCtrls, Vcl.StdCtrls, Vcl.Buttons, Vcl.ExtCtrls, ComObj;
+
+type
+  TFrmIcmsST = class(TForm)
+    Panel1: TPanel;
+    Label1: TLabel;
+    Label2: TLabel;
+    BtnPesquisar: TBitBtn;
+    BtnExportar: TBitBtn;
+    BtnSair: TBitBtn;
+    DateTimePicker1: TDateTimePicker;
+    DateTimePicker2: TDateTimePicker;
+    BtnLimpar: TBitBtn;
+    GridIcmsST: TDBGrid;
+    procedure BtnLimparClick(Sender: TObject);
+    procedure DimensionarGrid(dbg: TDBGrid);
+    procedure BtnPesquisarClick(Sender: TObject);
+    procedure BtnExportarClick(Sender: TObject);
+    procedure BtnSairClick(Sender: TObject);
+    procedure FormShow(Sender: TObject);
+  private
+    { Private declarations }
+  public
+    { Public declarations }
+  end;
+
+var
+  FrmIcmsST: TFrmIcmsST;
+
+implementation
+
+{$R *.dfm}
+
+uses DmRel;
+
+procedure TFrmIcmsST.BtnExportarClick(Sender: TObject);
+Var
+linha, coluna: integer;
+planilha: variant;
+valorCampo: string;
+begin
+  with DataModule1 do
+    Begin
+     planilha:= CreateOleObject('Excel.Application');
+     planilha.Workbooks.add(1);
+     planilha.Cells.Select;
+     planilha.Selection.NumberFormat := '@';
+     planilha.caption:= 'Exportação de dados para o excel';
+     planilha.visible:= true;
+     QryIcmsST.First;
+     for linha:= 0 to QryIcmsST.RecordCount-1 do
+     begin
+       for coluna:= 1 to QryIcmsST.FieldCount do
+        begin
+           valorCampo:= QryIcmsST.Fields[coluna-1].AsString;
+           planilha.cells[linha+2,coluna]:= valorCampo;
+        end;
+
+       QryIcmsST.Next;
+
+     end;
+     for coluna:=1 to QryIcmsST.FieldCount do
+     begin
+        valorCampo:= QryIcmsST.Fields[coluna-1].DisplayLabel;
+        planilha.cells[1,coluna]:= valorCampo;
+     end;
+     planilha.columns.AutoFit;
+     planilha.WorkSheets[1].Name:='NF com ICMSST';
+    End;
+end;
+
+procedure TFrmIcmsST.BtnLimparClick(Sender: TObject);
+begin
+      with DataModule1 do
+    begin
+      QryIcmsST.Close;
+    end;
+end;
+
+procedure TFrmIcmsST.BtnPesquisarClick(Sender: TObject);
+begin
+    with DataModule1.QryIcmsST do
+  begin
+      Close;
+      ParamByName('inicio').Value := DatetoStr(DateTimePicker1.Date);
+      ParamByName('fim').Value := DatetoStr(DateTimePicker2.Date);
+      Open;
+  end;
+
+  DimensionarGrid( GridIcmsST );
+end;
+
+procedure TFrmIcmsST.BtnSairClick(Sender: TObject);
+begin
+    with DataModule1 do
+    Begin
+      QryIcmsST.Close;
+      FrmIcmsST.Close;
+    End;
+end;
+
+procedure TFrmIcmsST.FormShow(Sender: TObject);
+begin
+  datetimepicker1.date:= now;
+  datetimepicker2.date:= now;
+  BtnPesquisar.SetFocus;
+end;
+
+procedure TFrmIcmsST.DimensionarGrid(dbg: TDBGrid);
+type
+  TArray = Array of Integer;
+
+procedure CalcularLarguraColunas(var AWidth: TArray; var Asize: TArray; var Twidth, TSize: Integer);
+var
+  idx: Integer;
+begin
+  Twidth := 0;
+  TSize := 0;
+  for idx := 0 to dbg.Columns.Count - 1 do
+  begin
+    // Ajustar largura com base no conteúdo da célula e no cabeçalho
+    if Assigned(dbg.Columns[idx].Field) then
+    begin
+      dbg.Columns[idx].Width := Max(dbg.Canvas.TextWidth(dbg.Columns[idx].Field.AsString + ' '),
+                                    dbg.Canvas.TextWidth(dbg.Columns[idx].Title.Caption + ' '));
+      Asize[idx] := dbg.Columns[idx].Field.Size;
+    end
+    else
+    begin
+      dbg.Columns[idx].Width := dbg.Canvas.TextWidth(dbg.Columns[idx].Title.Caption + ' ');
+      Asize[idx] := 1;
+    end;
+
+    // Armazenar a largura e o tamanho relativo
+    AWidth[idx] := dbg.Columns[idx].Width;
+    Twidth := Twidth + AWidth[idx];
+    TSize := TSize + Asize[idx];
+  end;
+end;
+
+procedure AjustarColumns(Swidth, TSize: Integer; Asize: TArray);
+var
+  idx: Integer;
+begin
+  if TSize = 0 then
+  begin
+    TSize := dbg.Columns.Count;
+    for idx := 0 to dbg.Columns.Count - 1 do
+      dbg.Columns[idx].Width := (dbg.Width - dbg.Canvas.TextWidth('AAAAAA')) div TSize;
+  end
+  else
+  begin
+    for idx := 0 to dbg.Columns.Count - 1 do
+      dbg.Columns[idx].Width := dbg.Columns[idx].Width + (Swidth * Asize[idx] div TSize);
+  end;
+end;
+
+procedure AjustarLarguraDBGrid;
+var
+  idx, Twidth, TSize, Swidth: Integer;
+  AWidth, Asize: TArray;
+begin
+  if dbg.Columns.Count = 0 then Exit; // Verifica se há colunas no grid
+
+  // Inicia o bloqueio para evitar redesenho enquanto as colunas são ajustadas
+  dbg.BeginUpdate;
+  try
+    // Inicializar arrays com o número de colunas
+    SetLength(AWidth, dbg.Columns.Count);
+    SetLength(Asize, dbg.Columns.Count);
+
+    // Calcular larguras iniciais e tamanho relativo das colunas
+    CalcularLarguraColunas(AWidth, Asize, Twidth, TSize);
+
+    // Ajustar as larguras das colunas com base nas opções do grid
+    if dgColLines in dbg.Options then
+      Twidth := Twidth + dbg.Columns.Count;
+
+    if dgIndicator in dbg.Options then
+      Twidth := Twidth + IndicatorWidth;
+
+    // Determinar a largura disponível para ajuste
+    Swidth := dbg.ClientWidth - Twidth;
+
+    // Ajustar as colunas de acordo com a largura disponível
+    AjustarColumns(Swidth, TSize, Asize);
+  finally
+    // Finaliza o bloqueio e redesenha o grid
+    dbg.EndUpdate;
+  end;
+end;
+
+end.

@@ -1,0 +1,108 @@
+unit PainelVendas2;
+
+interface
+
+uses
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, Vcl.Buttons, Vcl.ExtCtrls;
+
+type
+  TFrmPainelVendas2 = class(TForm)
+    Panel1: TPanel;
+    BtnSair: TBitBtn;
+    Panel2: TPanel;
+    procedure FormCreate(Sender: TObject);
+    procedure BtnSairClick(Sender: TObject);
+  private
+    { Private declarations }
+  public
+    { Public declarations }
+  end;
+
+const
+  MaxPanels = 7; // Define o número máximo de painéis
+
+var
+  FrmPainelVendas2: TFrmPainelVendas2;
+  Vendedores: TList;
+
+implementation
+
+{$R *.dfm}
+
+uses DmRel, VendedorUnit;
+
+procedure TFrmPainelVendas2.BtnSairClick(Sender: TObject);
+begin
+  FrmPainelVendas2.Close;
+end;
+
+procedure TFrmPainelVendas2.FormCreate(Sender: TObject);
+var
+  //Foto: TPicture;
+  Vendedor: TVendedor;
+  inicio, fim :  TDate;
+begin
+  inicio := now;
+  fim := now;
+
+
+  with DataModule1.QryPainelVendasVN do
+    Begin
+
+      Close;
+
+      ParamByName('inicio').Value := Datetostr(inicio);
+      ParamByName('fim').Value := Datetostr(fim);
+      ParamByName('inicio1').Value := inicio;
+      ParamByName('fim1').Value := fim;
+      ParamByName('inicio2').Value := inicio;
+      ParamByName('fim2').Value := fim;
+      ParamByName('inicio3').Value := inicio;
+      ParamByName('fim3').Value := fim;
+      ParamByName('inicio4').Value := inicio;
+      ParamByName('fim4').Value := fim;
+      ParamByName('inicio5').Value := inicio;
+      ParamByName('fim5').Value := fim;
+      ParamByName('inicio6').Value := inicio;
+      ParamByName('fim6').Value := fim;
+      ParamByName('inicio7').Value := inicio;
+      ParamByName('fim7').Value := fim;
+      ParamByName('inicio8').Value := inicio;
+      ParamByName('fim8').Value := fim;
+      ParamByName('inicio9').Value := inicio;
+      ParamByName('fim9').Value := fim;
+      ParamByName('inicio10').Value := inicio;
+      ParamByName('fim10').Value := fim;
+      Open;
+
+      while not DataModule1.QryPainelVendasVN.Eof do
+      begin
+        Vendedores := TList.Create;
+       // Vendedor := TVendedor.Create;
+
+       // Foto := TPicture.Create;
+       // Foto.LoadFromFile('../images/hacker.png'); // Carrega a foto do vendedor
+
+        Vendedor.Nome := FieldByName('Vendedor').AsString;
+        {Vendedor.Atendimento := FieldByName('Total Atendimentos').AsInteger;
+        Vendedor.Ativos := FieldByName('Ativos').AsInteger;
+        Vendedor.Receptivos := FieldByName('Receptivos').AsInteger;
+        Vendedor.Leads := FieldByName('Lead').AsInteger;
+        Vendedor.VendasPerdidas := FieldByName('Vendas Perdidas').AsInteger;
+        Vendedor.Vendas := FieldByName('Total Vendas').AsInteger;
+        Vendedor.VendaLoja := FieldByName('Venda Loja').AsInteger;
+        Vendedor.VendaDireta := FieldByName('Venda Direta').AsInteger;
+        Vendedor.Foto := Foto;}
+        Vendedores.Add(Vendedor);
+        Next;
+
+      end;
+
+     // CriarDashboard; // Cria o dashboard na inicialização
+
+    end;
+
+End;
+
+end.
