@@ -1,6 +1,7 @@
 object FrmSobre: TFrmSobre
   Left = 0
   Top = 0
+  BorderIcons = [biSystemMenu, biMinimize]
   Caption = 'Sobre'
   ClientHeight = 501
   ClientWidth = 1008
@@ -11,6 +12,7 @@ object FrmSobre: TFrmSobre
   Font.Name = 'Tahoma'
   Font.Style = []
   OldCreateOrder = False
+  Position = poMainFormCenter
   PixelsPerInch = 96
   TextHeight = 13
   object PnlLogo: TPanel
@@ -20,6 +22,7 @@ object FrmSobre: TFrmSobre
     Height = 501
     Align = alLeft
     Caption = 'Logo'
+    ParentBackground = False
     ShowCaption = False
     TabOrder = 0
     object Image1: TImage
@@ -506,8 +509,6 @@ object FrmSobre: TFrmSobre
     Caption = 'Panel1'
     ShowCaption = False
     TabOrder = 1
-    ExplicitLeft = 209
-    ExplicitTop = 8
     object Label1: TLabel
       Left = 20
       Top = 15
@@ -550,8 +551,8 @@ object FrmSobre: TFrmSobre
     object Label4: TLabel
       Left = 20
       Top = 153
-      Width = 669
-      Height = 72
+      Width = 665
+      Height = 39
       Caption = 
         'Este software foi desenvolvido usando o Delphi 10.3 Rio, uma pod' +
         'erosa plataforma de desenvolvimento de software da Embarcadero T' +
@@ -583,9 +584,9 @@ object FrmSobre: TFrmSobre
     object Label6: TLabel
       Left = 20
       Top = 86
-      Width = 269
-      Height = 26
-      Caption = 'Data de Lan'#231'amento: 31 de Setembro de 2024'
+      Width = 285
+      Height = 19
+      Caption = 'Data de Lan'#231'amento: 30 de Outubro de 2024'
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
       Font.Height = -11
@@ -610,8 +611,8 @@ object FrmSobre: TFrmSobre
     object Label8: TLabel
       Left = 20
       Top = 252
-      Width = 97
-      Height = 18
+      Width = 90
+      Height = 13
       Caption = 'Desenvolvido por: '
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
@@ -665,9 +666,9 @@ object FrmSobre: TFrmSobre
     object Label12: TLabel
       Left = 72
       Top = 271
-      Width = 86
+      Width = 165
       Height = 13
-      Caption = 'OST Tecnologia'
+      Caption = 'ON Tecnologia da Informa'#231#227'o'
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
       Font.Height = -11
@@ -691,8 +692,8 @@ object FrmSobre: TFrmSobre
     object Label16: TLabel
       Left = 20
       Top = 372
-      Width = 90
-      Height = 26
+      Width = 85
+      Height = 13
       Caption = 'Delphi Framework'
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
@@ -762,7 +763,7 @@ object FrmSobre: TFrmSobre
     end
     object BtnSair: TBitBtn
       Left = 311
-      Top = 433
+      Top = 437
       Width = 97
       Height = 34
       Caption = 'Fechar'
@@ -816,6 +817,14 @@ object FrmSobre: TFrmSobre
       Spacing = 6
       TabOrder = 4
       OnClick = BtnSairClick
+    end
+    object Panel5: TPanel
+      Left = 8
+      Top = 409
+      Width = 707
+      Height = 1
+      Caption = 'Panel1'
+      TabOrder = 5
     end
   end
 end

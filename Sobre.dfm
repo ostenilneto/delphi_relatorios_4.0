@@ -584,9 +584,9 @@ object FrmSobre: TFrmSobre
     object Label6: TLabel
       Left = 20
       Top = 86
-      Width = 285
-      Height = 19
-      Caption = 'Data de Lan'#231'amento: 30 de Outubro de 2024'
+      Width = 248
+      Height = 26
+      Caption = 'Data de Lan'#231'amento: 28 de Outubro de 2024'
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
       Font.Height = -11
